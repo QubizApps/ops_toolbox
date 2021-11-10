@@ -1,0 +1,8 @@
+### Environment-specific ###
+.env
+
+### IDEs ###
+/.idea/*
+
+### Terraform ###
+.terraform
