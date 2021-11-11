@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  ops_toolbox-aws:
+    build: .
+    command: ["tail", "-f", "/dev/null"]
+    env_file:
+      - .env
