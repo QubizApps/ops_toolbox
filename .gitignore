@@ -1,5 +1,6 @@
 ### Environment-specific ###
-.env
+/.env
+/docker-compose.override.yml
 
 ### IDEs ###
 /.idea/*
