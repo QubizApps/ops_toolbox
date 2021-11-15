@@ -1,0 +1,36 @@
+name: Integration Workflow
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: [\d+.\d+.\d+]
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: Dockerfile
+
+  scan:
+    name: Sonar Static Code Analysis
+    needs: lint
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup scanner
+        uses: warchant/setup-sonar-scanner@v3
+      - name: Run scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: sonar-scanner
+          -Dsonar.host.url=${{ secrets.SONAR_HOST }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.sources=.
