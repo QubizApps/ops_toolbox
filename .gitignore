@@ -1,0 +1,9 @@
+### Environment-specific ###
+/.env
+/docker-compose.override.yml
+
+### IDEs ###
+/.idea/*
+
+### Terraform ###
+.terraform
