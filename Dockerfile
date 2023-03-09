@@ -1,6 +1,6 @@
 ARG alpine_version=3.14
 ARG awscli_version=1.22
-ARG terraform_version=1.0.5
+ARG terraform_version=1.4.0
 
 ARG dir=/app
 ARG user=ops
