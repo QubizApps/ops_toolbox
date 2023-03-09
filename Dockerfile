@@ -20,9 +20,9 @@ RUN adduser -D ${user} \
 
 # Install dependencies
 WORKDIR /usr/local/bin
-RUN apk add --update --no-cache  \
-        aws-cli \
-        curl \
+RUN apk add --update --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
+        aws-cli~=2.11 \
+        curl~=7.88 \
     && curl https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
         -o terraform_${terraform_version}_linux_amd64.zip \
     && unzip terraform_${terraform_version}_linux_amd64.zip \
