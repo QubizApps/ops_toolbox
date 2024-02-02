@@ -1,5 +1,5 @@
-ARG alpine_version=3.17
-ARG awscli_version=2.11
+ARG alpine_version=3.18
+ARG awscli_version=2.13
 ARG terraform_version=1.4.0
 
 ARG dir=/app
@@ -22,9 +22,9 @@ RUN adduser -D ${user} \
 
 # Install dependencies
 WORKDIR /usr/local/bin
-RUN apk add --update --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
+RUN apk add --update --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64 \
         aws-cli~="${awscli_version}" \
-        curl~=7.88 \
+        curl~=8.5 \
     && curl https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
         -o terraform_${terraform_version}_linux_amd64.zip \
     && unzip terraform_${terraform_version}_linux_amd64.zip \
@@ -38,4 +38,4 @@ RUN chmod +x /entrypoint
 WORKDIR ${dir}
 USER ${user}
 
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["sh", "/entrypoint"]
