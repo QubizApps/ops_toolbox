@@ -5,8 +5,6 @@ Typical tooling used for OPS.
 ## Table of contents
 
 1. [Getting started](#getting-started)
-   1.1. [Package Managers](#1-package-managers)
-   1.2. [Tools](#2-tools)
 2. [How to use](#how-to-use)
 3. [Notes](#notes)
 
