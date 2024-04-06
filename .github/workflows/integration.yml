@@ -67,11 +67,12 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Build and push to DockerHub
+      - name: Build and push aws alpine version to DockerHub
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ vars.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_VERSION }}
+          tags: ${{ vars.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_VERSION }}-alpine-aws
+          target: aws-alpine
 
       - name: Send build finished message to MS Teams
         uses: dhollerbach/github-action-send-message-to-ms-teams@v3
