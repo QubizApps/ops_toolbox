@@ -23,10 +23,10 @@ RUN apk add \
     --no-cache \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64 \
     curl~=8.7 \
-    && curl https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
-    -o terraform_${terraform_version}_linux_amd64.zip \
-    && unzip terraform_${terraform_version}_linux_amd64.zip \
-    && rm terraform_${terraform_version}_linux_amd64.zip
+    && curl https://releases.hashicorp.com/terraform/"${terraform_version}"/terraform_"${terraform_version}"_linux_amd64.zip \
+    -o terraform_"${terraform_version}"_linux_amd64.zip \
+    && unzip terraform_"${terraform_version}"_linux_amd64.zip \
+    && rm terraform_"${terraform_version}"_linux_amd64.zip
 
 # Configure entrypoint
 COPY ./entrypoint.sh /entrypoint
