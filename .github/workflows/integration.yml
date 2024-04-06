@@ -8,95 +8,78 @@ on:
     tags: [\d+.\d+.\d+]
 
 jobs:
-  lint:
-    name: Linting - Hadolint for all changes
+  lint-dockerfile:
+    name: Linting Dockerfile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Run linter
-        uses: hadolint/hadolint-action@v1.6.0
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            Dockerfile
+          sparse-checkout-cone-mode: false
+      - name: Running Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
 
+  lint-docker-compose:
+    name: Linting Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docker-compose.yml
+          sparse-checkout-cone-mode: false
+      - name: Linting docker-compose with config
+        run: exit ${docker compose config}
+
   build:
-    name: Build - DockerHub for all changes pushed
-    needs: lint
+    name: Build and publish
+    needs: [lint-dockerfile, lint-docker-compose]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_HUB_REPOSITORY }}
-      MESSAGE_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL }}
-      USER: ${{ secrets.DOCKER_HUB_USERNAME }}
-      PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
+      ACTION_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      IMAGE_VERSION: latest
     steps:
-      - name: Set staging build
-        if: startsWith(github.ref, 'refs/heads/main')
-        run: echo "IMAGE_VERSION=latest" >> $GITHUB_ENV
-
-      - name: Set production build
+      - name: Configure production build
         if: startsWith(github.ref, 'refs/tags/')
         run: echo "IMAGE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Send build started message to MS Teams
-        uses: dhollerbach/github-action-send-message-to-ms-teams@1.0.10
+        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
         with:
-          webhook: ${{ env.MESSAGE_WEBHOOK }}
-          message: 'Started building <b><a href=${{github.event.repository.html_url}}>${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}</a></b>'
+          webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          message: |
+            'Started building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>'
 
       - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@master
-        with:
-          install: true
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          # Key is named differently to avoid collision
-          key: ${{ runner.os }}-multi-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-multi-buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
-          username: ${{ env.USER }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build and push to DockerHub
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
-          builder: ${{ steps.buildx.outputs.name }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          # Note the mode=max here
-          # More: https://github.com/moby/buildkit#--export-cache-options
-          # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-          context: .
-          file: Dockerfile
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
-
-      # Temp fix
-      # https://github.com/docker/build-push-action/issues/252
-      # https://github.com/moby/buildkit/issues/1896
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          tags: ${{ vars.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_VERSION }}
 
       - name: Send build finished message to MS Teams
-        uses: dhollerbach/github-action-send-message-to-ms-teams@1.0.10
+        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
         with:
-          webhook: ${{ env.MESSAGE_WEBHOOK }}
-          message: 'Finished building <b><a href=${{github.event.repository.html_url}}>${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}</a></b>'
+          webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          message: "Finished building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>"
 
       - name: Send build failed message to MS Teams
         if: ${{ failure() }}
-        uses: dhollerbach/github-action-send-message-to-ms-teams@1.0.10
+        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
         with:
-          webhook: ${{ env.MESSAGE_WEBHOOK }}
-          message: '<b><a href=${{github.event.repository.html_url}}>${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}</a></b> *HAS FAILED!* Panic?'
+          webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          message: "<b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b> *HAS FAILED!* Panic?"
