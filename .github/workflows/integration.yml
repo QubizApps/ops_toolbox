@@ -67,8 +67,7 @@ jobs:
         uses: dhollerbach/github-action-send-message-to-ms-teams@v3
         with:
           webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          message: |
-            'Started building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>'
+          message: 'Started building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
