@@ -38,6 +38,7 @@ jobs:
 
   scan:
     name: Sonar scanning
+    needs: [lint-dockerfile, lint-docker-compose]
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
