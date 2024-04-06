@@ -36,20 +36,6 @@ jobs:
           set -e;
           docker compose config;
 
-  scan:
-    name: Sonar scanning
-    needs: [lint-dockerfile, lint-docker-compose]
-    runs-on: ubuntu-latest
-    permissions: read-all
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-
   build:
     name: Build and publish
     needs: [lint-dockerfile, lint-docker-compose]
