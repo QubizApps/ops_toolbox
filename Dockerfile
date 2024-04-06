@@ -23,7 +23,7 @@ WORKDIR /usr/local/bin
 RUN apk add \
     --update \
     --no-cache \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64 \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/ \
     curl~=8.5 \
     && curl https://releases.hashicorp.com/terraform/"${terraform_version}"/terraform_"${terraform_version}"_linux_amd64.zip \
     -o terraform_"${terraform_version}"_linux_amd64.zip \
@@ -48,7 +48,7 @@ ARG user
 RUN apk add \
     --update \
     --no-cache \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64 \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/ \
     aws-cli~="${awscli_version}"
 
 
