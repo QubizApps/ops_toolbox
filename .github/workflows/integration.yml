@@ -64,7 +64,7 @@ jobs:
         run: echo "IMAGE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV;
 
       - name: Send build started message to MS Teams
-        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
+        uses: dhollerbach/actions.send-message-to-ms-teams@v3
         with:
           webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
           message: 'Started building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>'
@@ -90,14 +90,14 @@ jobs:
           target: aws-alpine
 
       - name: Send build finished message to MS Teams
-        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
+        uses: dhollerbach/actions.send-message-to-ms-teams@v3
         with:
           webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
           message: "Finished building <b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b>"
 
       - name: Send build failed message to MS Teams
         if: ${{ failure() }}
-        uses: dhollerbach/github-action-send-message-to-ms-teams@v3
+        uses: dhollerbach/actions.send-message-to-ms-teams@v3
         with:
           webhook: ${{ secrets.TEAMS_WEBHOOK_URL }}
           message: "<b><a href=${{ env.ACTION_URL }}>${{ github.repository }}:${{ env.IMAGE_VERSION }}</a></b> *HAS FAILED!* Panic?"
