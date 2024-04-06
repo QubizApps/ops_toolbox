@@ -8,6 +8,8 @@ ARG user=ops
 FROM alpine:${alpine_version} AS base-alpine
 
 # Setup
+ARG terraform_version
+
 ARG dir
 ARG user
 
